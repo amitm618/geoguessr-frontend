@@ -5,12 +5,14 @@ const AuthForm = ({ onAuthSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const endpoint = mode === "login" ? "login" : "register";
-    const url = `http://127.0.0.1:8000/${endpoint}`;
+
+    const url = `${API_BASE_URL}/${endpoint}`;
 
     try {
       const res = await fetch(url, {
@@ -34,7 +36,7 @@ const AuthForm = ({ onAuthSuccess }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/auth/google/login";
+    window.location.href = `${API_BASE_URL}/auth/google/login`;
   };
 
   return (
