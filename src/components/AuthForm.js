@@ -1,18 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const AuthForm = ({ onAuthSuccess }) => {
   const [mode, setMode] = useState("login"); // "login" or "register"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
+  const [apiBaseUrl, setApiBaseUrl] = useState("");
+
+  useEffect(() => {
+    fetch("/backend-address.txt")
+      .then((res) => res.text())
+      .then((text) => {
+        const match = text.match(/BACKEND_ADDRESS\s*=\s*(.*)/);
+        if (match) {
+          setApiBaseUrl(match[1].trim());
+        } else {
+          console.error(
+            "Could not parse BACKEND_ADDRESS from backend-address.txt"
+          );
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load backend address:", err);
+      });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!apiBaseUrl) return setError("Backend address not loaded yet.");
 
     const endpoint = mode === "login" ? "login" : "register";
-
-    const url = `${API_BASE_URL}/${endpoint}`;
+    const url = `${apiBaseUrl}/${endpoint}`;
 
     try {
       const res = await fetch(url, {
@@ -36,7 +54,8 @@ const AuthForm = ({ onAuthSuccess }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${API_BASE_URL}/auth/google/login`;
+    if (!apiBaseUrl) return setError("Backend address not loaded yet.");
+    window.location.href = `${apiBaseUrl}/auth/google/login`;
   };
 
   return (
